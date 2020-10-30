@@ -7,7 +7,9 @@ namespace LiarsDiceAPI.Models
     public class Player
     {
         public string UserName { get;}
-        public int DieLeft { get; } = Game.DefaultDice;
+        public int DieLeft { get; } = Game.InitialDiceCount;
+
+        public int DiceCount => DiceBag.Dice.Count();
         public DiceBag DiceBag { get; private set; }
 
         [JsonIgnore]
@@ -20,7 +22,7 @@ namespace LiarsDiceAPI.Models
             RollDiceBag();
         }
 
-        public bool HasLost => DiceBag.Dice.Count() <= 1;
+        public bool HasLost => DiceCount <= 1;
 
         public void RollDiceBag()
         {

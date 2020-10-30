@@ -16,6 +16,66 @@ namespace Tests.ModelTests
                 Assert.That(game.Status, Is.EqualTo(GameStatus.NotStarted));
             }
         }
+
+        [TestFixture]
+        public class When_starting_a_game
+        {
+            [Test]
+            public void Assure_more_than_one_player()
+            {
+                var game = new Game();
+                Assert.That(() => game.StartGame(), Throws.InvalidOperationException);
+            }
+
+            [Test]
+            public void Assure_game_status_is_running()
+            {
+                var game = StartGame();
+
+                Assert.That(game.Status, Is.EqualTo(GameStatus.Running));
+            }
+
+            [Test]
+            public void Assure_all_players_has_starting_number_of_dices()
+            {
+                var game = StartGame();
+
+                Assert.That(game.ActivePlayers.All(player => player.DiceCount == Game.InitialDiceCount), Is.True);
+            }
+
+            [Test]
+            public void Assure_has_current_player()
+            {
+                var game = StartGame();
+
+                Assert.That(game.CurrentPlayer, Is.Not.Null);
+            }
+
+            [Test]
+            public void Assure_cannot_start_already_running_game()
+            {
+                var game = StartGame();
+
+                Assert.That(() => game.StartGame(), Throws.InvalidOperationException);
+            }
+
+            [Test]
+            public void Assure_only_game_master_can_start_game()
+            {
+
+            }
+
+            private Game StartGame()
+            {
+
+                var game = new Game();
+                game.JoinGame("player 1");
+                game.JoinGame("player 2");
+                game.StartGame();
+                return game;
+            }
+        }
+
         [TestFixture]
         public class When_joining_a_game
         {

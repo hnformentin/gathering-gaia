@@ -39,7 +39,7 @@ namespace Tests.ModelTests
             public void Assure_returns_true_when_number_of_dice_is_one_or_less()
             {
                 var player = new Player("My name");
-                for (int i = 0; i < Game.DefaultDice-1; i++)
+                for (int i = 0; i < Game.InitialDiceCount-1; i++)
                 {
                     player.RemoveDice();
                 }

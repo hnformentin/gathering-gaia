@@ -24,17 +24,7 @@ namespace LiarsDiceAPI.Controllers
         [Produces(typeof(IEnumerable<GameInfo>))]
         public ActionResult<IEnumerable<GameInfo>> Get()
         {
-            var availableGames = GameRegistry.Registry.Select(x => x.Value)
-                .Where(x => x.Status == GameStatus.NotStarted)
-                .Select(y => new GameInfo()
-                {
-                    Id = y.Id,
-                    Name = y.Name,
-                    PlayersJoined = y.Players.Length,
-                    MaxPlayers = Game.MaxPlayers,
-                    CreatedBy = "Terje var her"
-                });
-            return Ok(availableGames);
+            return Ok(new Game[] { });
         }
 
         // GET api/<GamesController>/5
@@ -42,7 +32,7 @@ namespace LiarsDiceAPI.Controllers
         [Produces(typeof(Game))]
         public ActionResult<Game> Get(Guid id)
         {
-            var game = _cache.Get<Game>(id);
+            var game = GetGameById(id);
             return game;
         }
 
@@ -53,15 +43,16 @@ namespace LiarsDiceAPI.Controllers
         [Produces(typeof(Game))]
         public ActionResult<Game> Post(object gameName)
         {
+
             var game = new Game(gameName.ToString());
-            _cache.Set(game.Id, game);
+            SaveGame(game);
             return game;
         }
 
         [HttpPut("{id}/players")]
         public Guid Join(Guid id, [FromBody] string username)
         {
-            var game = _cache.Get<Game>(id);
+            var game = GetGameById(id);
             var player = game.JoinGame(username);
             return player.UserId;
         }
@@ -69,19 +60,20 @@ namespace LiarsDiceAPI.Controllers
         [HttpPut("{id}/start")]
         public void Start(Guid id, [FromBody] Guid userId)
         {
-            
+            var game = GetGameById(id);
+            game.StartGame();
         }
 
         [HttpPut("{id}/call")]
         public void Call(Guid id, [FromBody] Guid userId)
         {
-            
+
         }
 
         [HttpPut("{id}/bid")]
         public void Call(Guid id, [FromBody] Bid bid)
         {
-            
+
         }
 
         // DELETE api/<GamesController>/5
@@ -89,6 +81,18 @@ namespace LiarsDiceAPI.Controllers
         public IActionResult Delete(int id)
         {
             return Ok();
+        }
+
+        private Game GetGameById(Guid id)
+        {
+            return _cache.Get<Game>(id);
+        }
+
+        private void SaveGame(Game game)
+        {
+            var ids = _cache.Get<string[]>("games");
+
+            _cache.Set(game.Id, game);
         }
     }
 }

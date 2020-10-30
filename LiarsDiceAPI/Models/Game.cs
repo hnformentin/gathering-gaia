@@ -7,7 +7,7 @@ namespace LiarsDiceAPI.Models
     public class Game
     {
         public const int MaxPlayers = 4;
-        public const int DefaultDice = 5;
+        public const int InitialDiceCount = 5;
         public GameRound CurrentRound { get; private set; }
         public string Name { get; }
         public GameStatus Status { get; private set; } = GameStatus.NotStarted;
@@ -17,20 +17,16 @@ namespace LiarsDiceAPI.Models
             Id = Guid.NewGuid();
             Name = gameName;
             GameRegistry.Registry.Add(Id, this);
-            Round = 0;
             Players = new Player[] { };
         }
 
         public Guid Id { get; }
-        public int Round { get; }
         public Player[] Players { get; private set; }
         public IEnumerable<Player> ActivePlayers => Players.Where(player => !player.HasLost);
         public IEnumerable<Player> Losers => Players.Where(player => player.HasLost);
-        
-        public Player CurrentPlayer { get; }
-        public Bid CurrentBid { get; }
 
-        public bool HasStarted => Round > 0;
+        public Player CurrentPlayer { get; private set; }
+        public Bid LastBid { get; }
 
         public Player JoinGame(string userName)
         {
@@ -62,7 +58,18 @@ namespace LiarsDiceAPI.Models
 
         public void StartGame()
         {
-            throw new NotImplementedException();
+            if (Status == GameStatus.Running)
+            {
+                throw new InvalidOperationException("Cannot restart a running game");
+            }
+            if (Players.Length <= 1)
+            {
+                throw new InvalidOperationException("Requires more than 1 player");
+            }
+
+            Status = GameStatus.Running;
+            CurrentPlayer = Players[new Random().Next(0, Players.Length - 1)];
+            StartRoundWith(new Bid{  });
         }
 
         public void RollDice()
