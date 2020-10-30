@@ -1,3 +1,4 @@
+using LiarsDiceAPI.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +30,8 @@ namespace LiarsDiceAPI
 
                     });
             });
+
+            services.AddScoped<IGameRepository, GameRepository>();
             
             services.AddControllers();
             services.AddSwaggerGen();

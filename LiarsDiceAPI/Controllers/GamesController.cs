@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using LiarsDiceAPI.Models;
+using LiarsDiceAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,10 +12,10 @@ namespace LiarsDiceAPI.Controllers
     [ApiController]
     public class GamesController : ControllerBase
     {
-        private IMemoryCache _cache;
-        public GamesController(IMemoryCache memoryCache)
+        private readonly IGameRepository _gameRepository;
+        public GamesController(IGameRepository gameRepository)
         {
-            _cache = memoryCache;
+            _gameRepository = gameRepository;
         }
 
         // GET: api/<GamesController>
@@ -24,7 +23,7 @@ namespace LiarsDiceAPI.Controllers
         [Produces(typeof(IEnumerable<GameInfo>))]
         public ActionResult<IEnumerable<GameInfo>> Get()
         {
-            return Ok(new Game[] { });
+            return Ok(_gameRepository.GetAllGames());
         }
 
         // GET api/<GamesController>/5
@@ -32,7 +31,7 @@ namespace LiarsDiceAPI.Controllers
         [Produces(typeof(Game))]
         public ActionResult<Game> Get(Guid id)
         {
-            var game = GetGameById(id);
+            var game = _gameRepository.GetGameById(id);
             return game;
         }
 
@@ -45,14 +44,14 @@ namespace LiarsDiceAPI.Controllers
         {
 
             var game = new Game(gameName.ToString());
-            SaveGame(game);
+            _gameRepository.SaveGame(game);
             return game;
         }
 
         [HttpPut("{id}/players")]
         public Guid Join(Guid id, [FromBody] string username)
         {
-            var game = GetGameById(id);
+            var game = _gameRepository.GetGameById(id);
             var player = game.JoinGame(username);
             return player.UserId;
         }
@@ -60,7 +59,7 @@ namespace LiarsDiceAPI.Controllers
         [HttpPut("{id}/start")]
         public void Start(Guid id, [FromBody] Guid userId)
         {
-            var game = GetGameById(id);
+            var game = _gameRepository.GetGameById(id);
             game.StartGame();
         }
 
@@ -81,18 +80,6 @@ namespace LiarsDiceAPI.Controllers
         public IActionResult Delete(int id)
         {
             return Ok();
-        }
-
-        private Game GetGameById(Guid id)
-        {
-            return _cache.Get<Game>(id);
-        }
-
-        private void SaveGame(Game game)
-        {
-            var ids = _cache.Get<string[]>("games");
-
-            _cache.Set(game.Id, game);
         }
     }
 }

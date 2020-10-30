@@ -23,7 +23,7 @@ namespace Tests.ModelTests
             [Test]
             public void Assure_more_than_one_player()
             {
-                var game = new Game();
+                var game = new Game("et game");
                 Assert.That(() => game.StartGame(), Throws.InvalidOperationException);
             }
 
@@ -68,7 +68,7 @@ namespace Tests.ModelTests
             private Game StartGame()
             {
 
-                var game = new Game();
+                var game = new Game("et game");
                 game.JoinGame("player 1");
                 game.JoinGame("player 2");
                 game.StartGame();
