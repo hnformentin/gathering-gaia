@@ -72,28 +72,28 @@ namespace LiarsDiceAPI.Models
 
         public void Call()
         {
-            throw new NotImplementedException();
+            if (Status == GameStatus.Running)
+            {
+                CurrentRound.CallLiar();
+            } 
         }
 
         public void Bid(Die die, int nrOfDice)
         {
+            if (Status == GameStatus.Running)
+            {
+                CurrentRound.RaiseBid(new Bid(die, nrOfDice, CurrentPlayer.UserId));
+            }
+        }
+
+        public void StartRound()
+        {
+            CurrentRound = new GameRound(this);
+        }
+
+        public void EndRound()
+        {
             throw new NotImplementedException();
-        }
-
-        public void StartRoundWith(Bid initialBid)
-        {
-            CurrentRound = new GameRound(initialBid, Id);
-        }
-
-        public static Game GetGameInstance(Guid guid)
-        {
-            // TODO: Handle Exceptions.
-            return GameRegistry.Registry[guid];
-        }
-
-        public static IEnumerable<Player> GetActivePlayers(Guid guid)
-        {
-            return GetGameInstance(guid).ActivePlayers;
         }
     }
 }
